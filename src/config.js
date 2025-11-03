@@ -101,7 +101,7 @@ class Config {
     console.log(`📊 Environment: ${this.nodeEnv}`);
     console.log(`🔌 Port: ${this.port}`);
     console.log(`💾 Database: ${this.dbPath}`);
-    console.log(`🔐 HMAC Secret: ${'*'.repeat(this.hmacSecret.length)}`);
+    console.log(`🔐 HMAC Secret: ${this.isDevelopment ? this.hmacSecret : '*'.repeat(this.hmacSecret.length)}`);
     console.log(`📝 Verbose: ${this.verbose}`);
     console.log(`📈 Rate Limiting: ${this.enableRateLimiting ? 'Enabled' : 'Disabled'}`);
     console.log(`🛡️  Security Headers: ${this.enableSecurityHeaders ? 'Enabled' : 'Disabled'}`);

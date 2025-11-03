@@ -82,6 +82,15 @@ class MCPServer {
     // MCP Protocol support
     this.app.post('/mcp/function', this.validateRequest, this.handleMCPFunction.bind(this));
 
+    // HMAC Secret endpoint untuk MCP client configuration
+    this.app.get('/api/get_hmac_secret', (req, res) => {
+      res.json({
+        hmac_secret: config.hmacSecret,
+        timestamp: new Date().toISOString(),
+        note: 'Keep this secret secure and use it to configure your MCP client'
+      });
+    });
+
     // Serve static files for web interface
     this.app.use(express.static(path.join(__dirname, '../public')));
     
