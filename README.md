@@ -35,6 +35,16 @@
 - 🔐 **HMAC Signing** - Request authenticity verification
 - 🚨 **Error Handling** - Graceful failure recovery
 
+### 🎮 **Web Dashboard Interface**
+- 🌐 **Modern Web Interface** - Beautiful dashboard untuk manajemen semua tools
+- 📱 **Fully Responsive** - Perfect di desktop, tablet, dan mobile
+- 🎨 **Professional Design** - Dark/Light theme dengan smooth animations
+- ⚡ **Real-time Updates** - Live data dan auto-refresh capabilities
+- 📊 **Analytics Dashboard** - Charts dan insights untuk project monitoring
+- 🔍 **Advanced Search** - Filter dan search scripts dengan mudah
+- 💾 **One-click Backup** - Manajemen backup dan restore yang mudah
+- 🔐 **Secure Settings** - Konfigurasi HMAC secret dengan interface yang user-friendly
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -60,12 +70,21 @@ npm start
 ```
 
 ### Basic Usage
+
+#### 🌐 **Web Interface (Recommended)**
 ```bash
 # Start the server
 npm start
 
-# Server akan berjalan di http://localhost:3000
+# Buka browser dan navigasi ke:
+http://localhost:3000
 
+# Configure HMAC secret di Settings
+# Enjoy the beautiful dashboard!
+```
+
+#### 📡 **API Testing**
+```bash
 # Test dengan basic usage
 node examples/basic-usage.js
 
@@ -75,6 +94,24 @@ node examples/advanced-usage.js
 # Test dengan production usage
 node examples/production-usage.js
 ```
+
+### 🎮 **Web Dashboard Features**
+
+**Dashboard Sections:**
+- 📊 **Overview** - Project statistics dan quick actions
+- 📝 **Script Manager** - Create, edit, delete scripts dengan interface yang modern
+- 💾 **Backup & Restore** - One-click backup management
+- 📈 **Analytics** - Visual charts dan insights
+
+**Key Benefits:**
+- ✅ No command-line experience required
+- ✅ Real-time script preview dengan syntax highlighting  
+- ✅ Advanced search dan filtering
+- ✅ Mobile-friendly responsive design
+- ✅ Secure authentication configuration
+- ✅ Beautiful animations dan micro-interactions
+
+> 📖 **Detailed Guide**: Lihat [Web Interface Guide](docs/WEB-INTERFACE-GUIDE.md) untuk dokumentasi lengkap
 
 ## 🛠️ Available Tools
 
@@ -437,16 +474,32 @@ tail -f logs/app.log
 
 ```
 roblox-mcp-nodejs/
-├── src/
+├── src/                       # Backend server
 │   ├── server.js              # Main Express server
 │   ├── database.js            # SQLite database service
 │   ├── config.js              # Configuration management
 │   ├── robloxToolsService.js  # Roblox tools implementation
 │   └── client.js              # Built-in client library
-├── examples/                  # Usage examples
+├── public/                    # Web Interface (NEW!)
+│   ├── index.html             # Main dashboard application
+│   ├── css/                   # Modern UI styles
+│   │   ├── style.css          # Core styling
+│   │   ├── components.css     # Component styles
+│   │   └── animations.css     # Smooth animations
+│   ├── js/                    # Frontend JavaScript
+│   │   ├── config.js          # App configuration
+│   │   ├── api.js             # API communication
+│   │   ├── ui.js              # UI management
+│   │   ├── charts.js          # Analytics charts
+│   │   └── main.js            # Main application
+│   └── assets/                # Static resources
+├── examples/                  # API usage examples
 │   ├── basic-usage.js         # Basic functionality tests
 │   ├── advanced-usage.js      # Advanced usage patterns
 │   └── production-usage.js    # Production deployment tests
+├── docs/                      # Documentation
+│   ├── WEB-INTERFACE-GUIDE.md # Web interface documentation
+│   └── RAILWAY-DEPLOYMENT.md  # Deployment guides
 ├── docker/                    # Docker configuration
 │   ├── Dockerfile             # Container definition
 │   ├── docker-compose.yml     # Multi-service setup
@@ -520,6 +573,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 *Built dengan ❤️ untuk Roblox developers*
 
 ### Quick Links:
+- [🎮 Web Interface Guide](docs/WEB-INTERFACE-GUIDE.md) - Beautiful dashboard documentation
 - [🚀 Railway Deployment Guide](#-railway-deployment)
 - [🐳 Docker Setup](#-docker-deployment)
 - [📚 API Documentation](#-api-reference)

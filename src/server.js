@@ -69,27 +69,30 @@ class MCPServer {
       });
     });
 
-    // API routes
+    // API routes (Web UI friendly - no auth required for read operations)
     this.app.post('/api/create_script', this.validateRequest, this.handleCreateScript.bind(this));
-    this.app.get('/api/list_scripts', this.validateRequest, this.handleListScripts.bind(this));
+    this.app.get('/api/list_scripts', this.handleListScripts.bind(this)); // No auth for list
     this.app.put('/api/update_script', this.validateRequest, this.handleUpdateScript.bind(this));
     this.app.delete('/api/delete_script', this.validateRequest, this.handleDeleteScript.bind(this));
-    this.app.get('/api/get_project_status', this.validateRequest, this.handleGetProjectStatus.bind(this));
-    this.app.post('/api/validate_script', this.validateRequest, this.handleValidateScript.bind(this));
+    this.app.get('/api/get_project_status', this.handleGetProjectStatus.bind(this)); // No auth for status
+    this.app.post('/api/validate_script', this.handleValidateScript.bind(this)); // No auth for validation
     this.app.post('/api/backup_project', this.validateRequest, this.handleBackupProject.bind(this));
     this.app.post('/api/restore_project', this.validateRequest, this.handleRestoreProject.bind(this));
 
     // MCP Protocol support
     this.app.post('/mcp/function', this.validateRequest, this.handleMCPFunction.bind(this));
 
-    // Serve static files in production
-    if (config.isProduction) {
-      this.app.use(express.static(path.join(__dirname, '../public')));
-      
-      this.app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../public/index.html'));
-      });
-    }
+    // Serve static files for web interface
+    this.app.use(express.static(path.join(__dirname, '../public')));
+    
+    // Catch all route - serve index.html for SPA
+    this.app.get('*', (req, res) => {
+      // Skip API routes and health check
+      if (req.path.startsWith('/api/') || req.path === '/health' || req.path.startsWith('/mcp/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+      }
+      res.sendFile(path.join(__dirname, '../public/index.html'));
+    });
 
     // Error handling
     this.app.use(this.errorHandler.bind(this));
