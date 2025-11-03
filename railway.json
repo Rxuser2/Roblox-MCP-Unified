@@ -1,1 +1,1 @@
-{"build": {"builder": "NIXPACKS", "buildCommand": "npm install --omit=dev", "watchPatterns": ["src/**", "*.js", "package.json"]}, "deploy": {"startCommand": "npm start", "restartPolicyType": "ON_FAILURE", "restartPolicyMaxRetries": 10, "sleepApplication": false}}
+{"build": {"builder": "NIXPACKS", "buildCommand": "npm install --omit=dev && npm run db:init", "watchPatterns": ["src/**", "*.js", "package.json", "railway.json"]}, "deploy": {"startCommand": "node src/server.js", "restartPolicyType": "ON_FAILURE", "restartPolicyMaxRetries": 10}}
