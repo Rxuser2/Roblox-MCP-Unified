@@ -230,9 +230,7 @@
 
 # Gatsby files
 **/.cache/
-
-# Public folder for web interface - DO NOT IGNORE (this is our web UI!)
-# **/public
+**/public
 
 # Vue.js
 **/dist/

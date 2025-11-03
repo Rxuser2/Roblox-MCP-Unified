@@ -20,6 +20,9 @@ class MCPServer {
   }
 
   setupMiddleware() {
+    // Railway proxy configuration untuk Railway deployment
+    this.app.set('trust proxy', 1);
+    
     // Security headers
     if (config.enableSecurityHeaders) {
       this.app.use(helmet());
@@ -31,7 +34,7 @@ class MCPServer {
       credentials: true
     }));
 
-    // Rate limiting
+    // Rate limiting with Railway proxy support
     if (config.enableRateLimiting) {
       const limiter = rateLimit({
         windowMs: config.rateLimitWindowMs,
@@ -41,7 +44,12 @@ class MCPServer {
           code: 'RATE_LIMIT_EXCEEDED'
         },
         standardHeaders: true,
-        legacyHeaders: false
+        legacyHeaders: false,
+        // Railway proxy-friendly configuration
+        keyGenerator: (req) => {
+          // Use real client IP instead of proxy IP
+          return req.ip || req.connection.remoteAddress || 'unknown';
+        }
       });
       this.app.use('/api/', limiter);
     }
@@ -58,14 +66,29 @@ class MCPServer {
   }
 
   setupRoutes() {
-    // Health check
+    // Enhanced health check dengan performance metrics
     this.app.get('/health', (req, res) => {
+      const dbStatus = this.db ? 'connected' : 'disconnected';
+      const memoryUsage = process.memoryUsage();
+      
       res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        version: require('../package.json').version
+        memory: {
+          rss: Math.round(memoryUsage.rss / 1024 / 1024) + ' MB',
+          heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB',
+          heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB'
+        },
+        database: {
+          status: dbStatus,
+          path: config.dbPath
+        },
+        version: require('../package.json').version,
+        railway: {
+          proxy: req.app.get('trust proxy') ? 'enabled' : 'disabled',
+          rateLimit: config.enableRateLimiting ? 'enabled' : 'disabled'
+        }
       });
     });
 
@@ -81,6 +104,46 @@ class MCPServer {
 
     // MCP Protocol support
     this.app.post('/mcp/function', this.validateRequest, this.handleMCPFunction.bind(this));
+
+    // HMAC Secret endpoint untuk MCP client configuration
+    this.app.get('/api/get_hmac_secret', (req, res) => {
+      res.json({
+        hmac_secret: config.hmacSecret,
+        timestamp: new Date().toISOString(),
+        note: 'Keep this secret secure and use it to configure your MCP client'
+      });
+    });
+
+    // Performance monitoring endpoint
+    this.app.get('/api/performance', (req, res) => {
+      const fs = require('fs');
+      let dbSize = 'unknown';
+      
+      try {
+        if (fs.existsSync(config.dbPath)) {
+          const stats = fs.statSync(config.dbPath);
+          dbSize = Math.round(stats.size / 1024) + ' KB';
+        }
+      } catch (error) {
+        this.logger.warn('Could not get database size:', error.message);
+      }
+      
+      const performance = {
+        memory: process.memoryUsage(),
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        database: {
+          path: config.dbPath,
+          size: dbSize
+        },
+        server: {
+          nodeEnv: config.nodeEnv,
+          port: config.port,
+          proxy: req.app.get('trust proxy') ? 'enabled' : 'disabled'
+        }
+      };
+      res.json(performance);
+    });
 
     // Serve static files for web interface
     this.app.use(express.static(path.join(__dirname, '../public')));
@@ -100,6 +163,15 @@ class MCPServer {
 
   validateRequest(req, res, next) {
     try {
+      // Add request timeout untuk database operations
+      req.setTimeout(config.dbQueryTimeout || 30000, () => {
+        res.status(408).json({
+          success: false,
+          error: 'Request timeout - operation took too long',
+          code: 'REQUEST_TIMEOUT'
+        });
+      });
+
       const signature = req.headers['x-signature'] || req.headers['authorization']?.replace('Bearer ', '');
       
       if (!signature) {

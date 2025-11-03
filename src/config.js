@@ -23,6 +23,19 @@ class Config {
     // Railway
     this.railwayStaticUrl = process.env.RAILWAY_STATIC_URL;
     
+    // Database optimization for Railway
+    this.dbConnectionTimeout = parseInt(process.env.DB_CONNECTION_TIMEOUT) || 10000; // 10 seconds
+    this.dbQueryTimeout = parseInt(process.env.DB_QUERY_TIMEOUT) || 30000; // 30 seconds
+    this.enableDbPool = (process.env.ENABLE_DB_POOL || 'true').toLowerCase() === 'true';
+    
+    // Server timeout optimization
+    this.requestTimeout = parseInt(process.env.REQUEST_TIMEOUT) || 35000;
+    this.keepAliveTimeout = parseInt(process.env.KEEP_ALIVE_TIMEOUT) || 70000;
+    
+    // Railway storage configuration
+    this.persistentDataPath = process.env.DATA_PATH || './data';
+    this.dbPath = process.env.DB_PATH || `${this.persistentDataPath}/roblox_mcp.db`;
+    
     this.validateConfig();
   }
 
@@ -101,10 +114,13 @@ class Config {
     console.log(`📊 Environment: ${this.nodeEnv}`);
     console.log(`🔌 Port: ${this.port}`);
     console.log(`💾 Database: ${this.dbPath}`);
-    console.log(`🔐 HMAC Secret: ${'*'.repeat(this.hmacSecret.length)}`);
+    console.log(`🔐 HMAC Secret: ${this.isDevelopment ? this.hmacSecret : '*'.repeat(this.hmacSecret.length)}`);
     console.log(`📝 Verbose: ${this.verbose}`);
     console.log(`📈 Rate Limiting: ${this.enableRateLimiting ? 'Enabled' : 'Disabled'}`);
     console.log(`🛡️  Security Headers: ${this.enableSecurityHeaders ? 'Enabled' : 'Disabled'}`);
+    console.log(`⚡ DB Timeout: ${this.dbQueryTimeout}ms`);
+    console.log(`🔄 Connection Pool: ${this.enableDbPool ? 'Enabled' : 'Disabled'}`);
+    console.log(`🌐 Railway Static URL: ${this.railwayStaticUrl || 'Not set'}`);
   }
 }
 
